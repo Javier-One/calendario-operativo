@@ -445,8 +445,20 @@ function normalizeEvent(ev){
     name:   ev.name   || '(sin nombre)',
     type:   normalizeType(ev.type),
     crit:   (ev.crit  || 'bajo').toLowerCase().trim(),
-    date:   ev.date   || '',
-    time:   ev.time   || '',
+    date:   (ev.date ? String(ev.date).trim().slice(0,10) : ''),
+    time:   (function(t){
+      if(!t) return '';
+      t = String(t).trim();
+      // Sheets sometimes returns time as decimal fraction of day (e.g. 0.833333 = 20:00)
+      if(/^0\.\d+$/.test(t) || /^\d\.\d+$/.test(t)){
+        var frac = parseFloat(t);
+        var totalMin = Math.round(frac * 24 * 60);
+        var hh = Math.floor(totalMin / 60) % 24;
+        var mm = totalMin % 60;
+        return String(hh).padStart(2,'0') + ':' + String(mm).padStart(2,'0');
+      }
+      return t;
+    })(ev.time),
     source: ev.source || 'Manual',
     extId:  ev.extId  || '',
     resp:   ev.resp   || '',
@@ -462,7 +474,7 @@ async function loadAll(){
     RES = {};
     (d.restrictions || []).forEach(function(r){ RES[r.date] = {status:r.status, reason:r.reason}; });
     saveLS();
-    render();
+    try { render(); } catch(re){ console.error('render error:', re); }
   } catch(e) {
     setSt('fail', 'Sin conexión — usando caché');
     loadLS();
@@ -625,7 +637,7 @@ function renderCal(){
     var dk = CY+'-'+String(CM+1).padStart(2,'0')+'-'+String(d).padStart(2,'0');
     var iT = dk === tk;
     var iR = RES[dk] && RES[dk].status === 'no';
-    var de = fe.filter(function(e){ return e.date === dk; });
+    var de = fe.filter(function(e){ return (e.date||'').slice(0,10) === dk; });
     var sh = ROLE === 'ext' ? de.filter(function(e){ return e.crit !== 'bajo'; }) : de;
     var pills = sh.slice(0,3).map(function(e){
       return '<div class="ep '+cc(e.crit)+'" onclick="event.stopPropagation();openDet(\''+e.id+'\')" title="'+e.name+'">'+e.name+'</div>';
