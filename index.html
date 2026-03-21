@@ -837,4 +837,29 @@ document.querySelectorAll('.mo').forEach(function(m){
   m.addEventListener('click', function(e){ if(e.target === m) m.classList.remove('open'); });
 });
 
-// ═══ INIT ═══════════════════════════ 
+// ═══ INIT ══════════════════════════════════════════════════
+// Timeout de seguridad: si en 8 segundos no responde Sheets,
+// carga caché local y muestra el calendario de todas formas.
+var _ovTimer = setTimeout(function(){
+  if(!document.getElementById('ov').classList.contains('gone')){
+    setSt('fail','Tiempo agotado — usando caché local');
+    loadLS();
+    hideOv();
+  }
+}, 8000);
+
+setRole('int');
+if(!checkSetup()){
+  loadAll().then(function(){
+    clearTimeout(_ovTimer);
+  }).catch(function(){
+    clearTimeout(_ovTimer);
+  });
+} else {
+  clearTimeout(_ovTimer);
+  loadLS();
+}
+setInterval(function(){ if(getScriptUrl() && !LOCAL) loadAll(); }, 120000);
+</script>
+</body>
+</html>
