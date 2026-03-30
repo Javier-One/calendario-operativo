@@ -54,7 +54,8 @@ body{font-family:var(--ff);background:var(--bg2);color:var(--tx0);font-size:14px
 .hdr{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;padding-bottom:1rem;margin-bottom:1.25rem;border-bottom:2px solid var(--pd-teal)}
 .brand{display:flex;align-items:center;gap:11px}
 .bico{height:38px;display:flex;align-items:center;flex-shrink:0}
-.bico img{height:38px;width:auto;object-fit:contain}
+.bico img{height:38px;width:auto;object-fit:contain;border-radius:6px;transition:background .4s,padding .4s}
+body.night .bico img{background:#fff;padding:3px}
 .btit{font-size:16px;font-weight:700;color:var(--pd-dark)}
 body.night .btit{color:var(--pd-teal)}
 .bsub{font-size:11px;color:var(--tx1);margin-top:1px}
@@ -92,8 +93,8 @@ body.night .navb{color:var(--pd-teal)} .navb:hover{background:var(--pd-pale)}
 .mlbl{font-size:15px;font-weight:700;min-width:155px;text-align:center;color:var(--pd-dark)}
 body.night .mlbl{color:var(--pd-teal)}
 .mp-wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden}
-.mp-wm img{width:320px;height:auto;opacity:.06;filter:grayscale(20%)}
-body.night .mp-wm img{opacity:.09;filter:brightness(1.2) grayscale(10%)}
+.mp-wm img{width:300px;height:auto;opacity:.1;filter:none}
+body.night .mp-wm img{opacity:.13;filter:brightness(1.4) saturate(0.8)}
 #cal-dh,#cal-cd,.lv,.av{position:relative;z-index:1}
 .cg{display:grid;grid-template-columns:repeat(7,1fr)}
 .dh{padding:7px 5px;text-align:center;font-size:10px;font-weight:700;color:var(--pd-dark);border-bottom:1px solid var(--pd-pale);text-transform:uppercase;letter-spacing:.04em;background:var(--pd-pale)}
@@ -157,7 +158,8 @@ body.night .tab.on{color:var(--pd-teal)}
 .em{text-align:center;padding:2rem;color:var(--tx1);font-size:13px}
 .io{}
 .footer-bar{text-align:center;padding:18px 0 8px;font-size:12px;color:var(--tx2);display:flex;align-items:center;justify-content:center;gap:8px;user-select:none}
-.footer-logo img{height:22px;width:auto;object-fit:contain;vertical-align:middle}
+.footer-logo img{height:22px;width:auto;object-fit:contain;vertical-align:middle;border-radius:4px;transition:background .4s,padding .4s}
+body.night .footer-logo img{background:#fff;padding:2px}
 #ball-wrap{position:fixed;bottom:24px;right:24px;z-index:400;pointer-events:none;width:60px;height:60px}
 #ball-img{width:60px;height:60px;object-fit:contain;animation:ballbounce 5s ease-in-out infinite}
 @keyframes ballbounce{
@@ -172,13 +174,13 @@ body.night .tab.on{color:var(--pd-teal)}
 }
 .confetti-piece{position:fixed;pointer-events:none;z-index:9998;border-radius:2px;animation:confetti-fall linear forwards}
 @keyframes confetti-fall{0%{opacity:1;transform:translateY(0) rotate(0deg) scale(1)}80%{opacity:1}100%{opacity:0;transform:translateY(130px) rotate(720deg) scale(.4)}}
-#sky-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:hidden}
+#sky-canvas{position:fixed;top:0;left:0;width:100%;height:100%;pointer-events:none;z-index:1;overflow:visible}
 .sun-obj{position:fixed;top:16px;right:90px;pointer-events:none;z-index:3;animation:sun-pulse 3s ease-in-out infinite}
 @keyframes sun-pulse{0%,100%{opacity:.92;transform:scale(1)}50%{opacity:1;transform:scale(1.07)}}
-.moon-obj{position:fixed;top:14px;right:88px;pointer-events:none;z-index:3;animation:moon-glow 4s ease-in-out infinite}
+.moon-obj{position:absolute;top:8px;right:20px;pointer-events:none;z-index:5;animation:moon-glow 4s ease-in-out infinite}
 @keyframes moon-glow{0%,100%{filter:drop-shadow(0 0 5px rgba(200,220,255,.4))}50%{filter:drop-shadow(0 0 16px rgba(200,220,255,.85))}}
-.cloud{position:fixed;pointer-events:none;animation:cloud-drift linear infinite}
-.cloud.front{z-index:4} .cloud.back{z-index:2}
+.cloud{position:fixed;pointer-events:none;animation:cloud-drift linear infinite;top:0}
+.cloud.front{z-index:0} .cloud.back{z-index:0}
 @keyframes cloud-drift{0%{transform:translateX(-200px)}100%{transform:translateX(110vw)}}
 .bird-wrap{position:fixed;pointer-events:none;z-index:2;animation:bird-fly linear forwards}
 @keyframes bird-fly{0%{transform:translateX(-120px) translateY(0)}100%{transform:translateX(110vw) translateY(var(--bdy))}}
@@ -296,10 +298,36 @@ body.night .tab.on{color:var(--pd-teal)}
     <div id="v-lst" style="display:none"><div class="lv" id="lc"></div></div>
     <div id="v-alt" style="display:none">
       <div class="av">
-        <div style="font-size:13px;font-weight:500;color:var(--tx1);margin-bottom:10px">Alertas pendientes &mdash; alta y media criticidad</div>
-        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:12px;font-size:12px;color:var(--tx1)">
-          Canales: <span class="badge bd">Slack #ops-alerts</span>
-          <span class="badge bm">Email soporte@pagodirecto.com</span>
+        <div style="font-size:13px;font-weight:500;color:var(--tx1);margin-bot        <div style="font-size:14px;font-weight:600;color:var(--pd-dark);margin-bottom:4px">&#x26BD; Alertas Deportivas</div>
+        <div style="font-size:11px;color:var(--tx2);margin-bottom:10px">Notificaciones autom&aacute;ticas 24h &middot; 1h &middot; 15 min antes de cada evento deportivo</div>
+        <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
+          <span style="font-size:11px;color:var(--tx1);font-weight:600">Canales:</span>
+          <span class="badge bd">&#x2709; Email</span>
+          <span class="badge bm">&#x1F4AC; Teams</span>
+          <span class="badge" style="background:#d4f0e0;color:#1B3A2D;border:0.5px solid #3DAB7B">&#x1F4F1; WhatsApp</span>
+        </div>
+        <div style="background:var(--bg1);border-radius:var(--r1);padding:10px 12px;margin-bottom:12px;border:0.5px solid var(--bd0)">
+          <div style="font-size:11px;font-weight:700;color:var(--pd-mid);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Configurar destinatarios</div>
+          <div class="fr" style="gap:8px;margin-bottom:6px">
+            <div class="fg"><label>Email</label><input id="notif-email" type="email" placeholder="correo@empresa.com" style="font-size:12px;padding:5px 8px"></div>
+            <div class="fg"><label>Teams Webhook URL</label><input id="notif-teams" type="url" placeholder="https://outlook.office.com/webhook/..." style="font-size:12px;padding:5px 8px"></div>
+          </div>
+          <div class="fg"><label>WhatsApp (n&uacute;mero con c&oacute;digo pa&iacute;s)</label><input id="notif-wa" type="tel" placeholder="+58414..." style="font-size:12px;padding:5px 8px;max-width:220px"></div>
+          <div style="margin-top:8px;display:flex;align-items:center;gap:10px">
+            <button class="btn btns btnp" onclick="saveNotifConfig()">Guardar configuraci&oacute;n</button>
+            <span id="notif-saved" style="font-size:11px;color:var(--grn-tx);display:none">&#x2713; Guardado</span>
+          </div>
+          <div style="margin-top:10px;padding:8px 10px;background:var(--amb-bg);border-radius:var(--r1);border:0.5px solid var(--amb-bd)">
+            <div style="font-size:11px;font-weight:700;color:var(--amb-tx);margin-bottom:4px">&#x2139; C&oacute;mo funcionan las notificaciones</div>
+            <div style="font-size:11px;color:var(--amb-tx);line-height:1.6">
+              &bull; <strong>Navegador</strong>: aparece una notificaci&oacute;n push si autorizas el permiso (se solicita al cargar)<br>
+              &bull; <strong>WhatsApp</strong>: abre wa.me con el mensaje listo &mdash; debes enviar t&uacute; mismo<br>
+              &bull; <strong>Teams</strong>: env&iacute;a autom&aacute;ticamente al webhook configurado<br>
+              &bull; <strong>Email</strong>: abre tu cliente de correo (Outlook/Gmail) con el mensaje pre-llenado<br>
+              &bull; El sistema debe estar <strong>abierto en el navegador</strong> para detectar las ventanas de tiempo
+            </div>
+          </div
+          </div>
         </div>
         <div id="ac"></div>
       </div>
@@ -324,13 +352,17 @@ body.night .tab.on{color:var(--pd-teal)}
       <div class="fg"><label>Nombre *</label><input id="f-name" placeholder="Ej: Copa Libertadores Final"></div>
       <div class="fr">
         <div class="fg"><label>Tipo *</label>
-          <select id="f-type"><option>Deportivo</option><option>Marketing</option><option>Release</option></select></div>
+          <select id="f-type" onchange="toggleMarketingDateEnd()"><option>Deportivo</option><option>Marketing</option><option>Release</option></select></div>
         <div class="fg"><label>Criticidad *</label>
           <select id="f-crit"><option value="alto">&#x1F534; Alto</option><option value="medio">&#x1F7E1; Medio</option><option value="bajo">&#x1F7E2; Bajo</option></select></div>
       </div>
       <div class="fr">
-        <div class="fg"><label>Fecha *</label><input type="date" id="f-date"></div>
+        <div class="fg"><label>Fecha inicio *</label><input type="date" id="f-date"></div>
         <div class="fg"><label>Hora</label><input type="time" id="f-time" value="20:00"></div>
+      </div>
+      <div class="fr" id="f-date-end-row" style="display:none">
+        <div class="fg"><label>Fecha fin (campaña)</label><input type="date" id="f-date-end"></div>
+        <div class="fg"></div>
       </div>
       <div class="fr">
         <div class="fg"><label>Fuente</label>
@@ -381,9 +413,12 @@ body.night .tab.on{color:var(--pd-teal)}
   <div class="mbox" style="max-width:370px">
     <div class="mh"><h2>Ventana de release</h2><button class="mcl" onclick="closeMo('m-res')">&#x00D7;</button></div>
     <div class="mbd">
-      <div class="fg"><label>Fecha *</label><input type="date" id="r-date"></div>
+      <div class="fr">
+        <div class="fg"><label>Fecha desde *</label><input type="date" id="r-date"></div>
+        <div class="fg"><label>Fecha hasta (opcional)</label><input type="date" id="r-date-end"></div>
+      </div>
       <div class="fg"><label>Estado</label>
-        <select id="r-st"><option value="no">&#x1F6AB; No permitido</option><option value="si">&#x2705; Permitido</option></select></div>
+        <select id="r-st"><option value="no">&#x1F6AB; No permitido (bloquea Release)</option><option value="si">&#x2705; Permitido</option></select></div>
       <div class="fg"><label>Motivo</label><input id="r-why" placeholder="Ej: Evento cr&iacute;tico, campa&ntilde;a masiva"></div>
     </div>
     <div class="mft">
@@ -408,7 +443,7 @@ body.night .tab.on{color:var(--pd-teal)}
   </div>
 </div>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 
 var MOS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var DYS=['Dom','Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b'];
@@ -443,7 +478,7 @@ function mkCloud(front){
   var c=document.createElement('div');
   c.className='cloud '+(front?'front':'back');
   var w=80+Math.random()*140;
-  var top=8+Math.random()*160;
+  var top=10+Math.random()*70;
   var dur=45+Math.random()*55;
   var delay=-(Math.random()*dur);
   var op=front?(0.5+Math.random()*0.3):(0.25+Math.random()*0.2);
@@ -476,8 +511,17 @@ function hideSun(){ if(_sunEl) _sunEl.style.display='none'; }
 function showMoon(){
   if(!_moonEl){
     _moonEl=document.createElement('div'); _moonEl.className='moon-obj';
-    _moonEl.innerHTML='<svg width="46" height="46" viewBox="0 0 46 46"><path d="M30 7 A16 16 0 1 0 30 39 A12 12 0 1 1 30 7Z" fill="#fffde0"/></svg>';
-    document.body.appendChild(_moonEl);
+    _moonEl.innerHTML=''
+      +'<svg width="72" height="72" viewBox="0 0 72 72" xmlns="http://www.w3.org/2000/svg">'
+      +'<defs><filter id="mglow"><feGaussianBlur stdDeviation="3" result="blur"/>'
+      +'<feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge></filter></defs>'
+      +'<circle cx="36" cy="36" r="34" fill="rgba(255,253,210,0.12)"/>'
+      +'<path d="M44 10 A24 24 0 1 0 44 62 A18 18 0 1 1 44 10Z" fill="#FFF9C4" filter="url(#mglow)"/>'
+      +'<circle cx="26" cy="22" r="3.5" fill="rgba(230,220,150,0.35)"/>'
+      +'<circle cx="20" cy="36" r="2.5" fill="rgba(230,220,150,0.28)"/>'
+      +'<circle cx="30" cy="48" r="2" fill="rgba(230,220,150,0.22)"/>'
+      +'</svg>';
+    document.getElementById('sky-canvas').appendChild(_moonEl);
   }
   _moonEl.style.display='block';
 }
@@ -485,22 +529,21 @@ function hideMoon(){ if(_moonEl) _moonEl.style.display='none'; }
 
 // DIA: sol + nubes + pajaros
 var _birdTimer=null;
-function startDay(){ showSun(); startClouds(); launchBird(false); _birdTimer=setInterval(function(){ launchBird(Math.random()<0.2); },4000); }
+function startDay(){ showSun(); startClouds(); launchBird(); _birdTimer=setInterval(launchBird, 5000); }
 function stopDay(){ hideSun(); stopClouds(); if(_birdTimer){clearInterval(_birdTimer);_birdTimer=null;} }
 
-function launchBird(asV){
+function launchBird(){
   var sky=document.getElementById('sky-canvas');
-  var count=asV?(5+Math.floor(Math.random()*4)):1;
   var baseY=50+Math.random()*240;
   var baseSize=14+Math.random()*10;
   var dur=7+Math.random()*5;
   var dy=(Math.random()-0.5)*150;
-  for(var i=0;i<count;i++){
+  for(var i=0;i<1;i++){
     (function(idx){
       var bw=document.createElement('div');
       bw.className='bird-wrap';
-      var oy=asV?Math.abs(idx)*16:0;
-      var sz=baseSize-(idx*0.4);
+      var oy=0;
+      var sz=baseSize;
       var bw2=Math.round(sz*2.4), bh=Math.round(sz);
       bw.style.cssText='top:'+(baseY+oy)+'px;left:-120px;--bdy:'+(dy+oy)+'px;animation-duration:'+(dur+(idx*0.3))+'s;';
       bw.innerHTML='<svg width="'+bw2+'" height="'+bh+'" viewBox="0 0 48 20" xmlns="http://www.w3.org/2000/svg">'
@@ -515,9 +558,9 @@ function launchBird(asV){
 
 // NOCHE: luna + nubes + copos de nieve
 var _snowTimer=null;
-function startNight(){ showMoon(); startClouds(); launchSnow(); _snowTimer=setInterval(launchSnow,500); }
+function startNight(){ showMoon(); launchSnow(); _snowTimer=setInterval(launchSnow,750); }
 function stopNight(){
-  hideMoon(); stopClouds();
+  hideMoon();
   if(_snowTimer){clearInterval(_snowTimer);_snowTimer=null;}
   document.querySelectorAll('.snowflake').forEach(function(s){ if(s.parentNode) s.parentNode.removeChild(s); });
 }
@@ -525,7 +568,7 @@ function stopNight(){
 var _snowFlakes=['\u2744','\u2745','\u2746','*','\u00B7'];
 function launchSnow(){
   var sky=document.getElementById('sky-canvas');
-  var batch=2+Math.floor(Math.random()*3);
+  var batch=1+Math.floor(Math.random()*3);
   for(var i=0;i<batch;i++){
     var s=document.createElement('div');
     s.className='snowflake';
@@ -605,7 +648,7 @@ function normalizeEvent(ev){
       return t;
     })(ev.time),
     source:ev.source||'Manual', extId:ev.extId||'', resp:ev.resp||'',
-    turno:ev.turno||'Diurno', notes:ev.notes||''
+    turno:ev.turno||'Diurno', notes:ev.notes||'', dateEnd:ev.dateEnd||''
   };
 }
 
@@ -719,11 +762,18 @@ function renderCal(){
   var me=fe.filter(function(e){ return e.date&&e.date.startsWith(pfx); });
   document.getElementById('mst').textContent=me.length+' eventos \u00b7 '+me.filter(function(e){return e.crit==='alto';}).length+' cr\u00edticos';
   var ms=document.getElementById('msm');
-  if(ms) ms.innerHTML='Total: <strong>'+me.length+'</strong><br>'
-    +'<span style="color:var(--red-tx)">\uD83D\uDD34 '+me.filter(function(e){return e.crit==='alto';}).length+'</span>&nbsp;'
-    +'<span style="color:var(--amb-tx)">\uD83D\uDF01 '+me.filter(function(e){return e.crit==='medio';}).length+'</span>&nbsp;'
-    +'<span style="color:var(--grn-tx)">\uD83D\uDF02 '+me.filter(function(e){return e.crit==='bajo';}).length+'</span><br>'
-    +'<span style="color:var(--tx2);font-size:11px">Restringidos: '+Object.keys(RES).filter(function(k){return RES[k].status==='no';}).length+'</span>';
+  if(ms) ms.innerHTML=
+    'Total: <strong>'+me.length+'</strong><br>'
+    +'<span style="display:inline-flex;align-items:center;gap:3px;margin-right:6px">'
+    +'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#E24B4A;flex-shrink:0"></span>'
+    +'<span style="color:#791F1F;font-size:12px">Alto: '+me.filter(function(e){return e.crit==='alto';}).length+'</span></span>'
+    +'<span style="display:inline-flex;align-items:center;gap:3px;margin-right:6px">'
+    +'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#EF9F27;flex-shrink:0"></span>'
+    +'<span style="color:#633806;font-size:12px">Medio: '+me.filter(function(e){return e.crit==='medio';}).length+'</span></span>'
+    +'<br><span style="display:inline-flex;align-items:center;gap:3px;margin-right:6px">'
+    +'<span style="display:inline-block;width:9px;height:9px;border-radius:50%;background:#2E7D5B;flex-shrink:0"></span>'
+    +'<span style="color:#1B3A2D;font-size:12px">Bajo: '+me.filter(function(e){return e.crit==='bajo';}).length+'</span></span>'
+    +'<br><span style="color:var(--tx2);font-size:11px">Restringidos: '+Object.keys(RES).filter(function(k){return RES[k].status==='no';}).length+'</span>';
   var up=EVS.filter(function(e){
     if(!e.date) return false;
     var df=(new Date(e.date)-new Date(tk))/86400000;
@@ -788,22 +838,69 @@ function renderLst(){
 }
 
 // ALERTAS
+function getNotifWindows(e){
+  // Calcula ventanas de notificación: 24h, 1h y 15min antes
+  if(!e.date) return [];
+  var dt=e.time?new Date(e.date+'T'+e.time+':00'):new Date(e.date+'T00:00:00');
+  var now=new Date();
+  var diff=dt-now; // ms
+  var windows=[];
+  var mins=Math.round(diff/60000);
+  if(mins>0 && mins<=24*60+30) windows.push({label:'en aprox. '+Math.round(mins/60)+'h', urgent:mins<=75});
+  if(mins>75 && mins<=24*60+30) windows.push({label:'24h antes', urgent:false});
+  return windows;
+}
 function renderAlt(){
   var tk=new Date().toISOString().slice(0,10);
-  var up=gf().filter(function(e){ return e.crit!=='bajo'&&e.date>=tk; }).sort(function(a,b){ return a.date.localeCompare(b.date); }).slice(0,10);
+  // SOLO eventos deportivos futuros
+  var up=EVS.filter(function(e){ return e.type==='Deportivo'&&e.date>=tk; })
+    .sort(function(a,b){ return a.date.localeCompare(b.date); });
   var c=document.getElementById('ac');
-  if(!up.length){ c.innerHTML='<div class="em">Sin alertas pendientes.</div>'; return; }
+  if(!up.length){ c.innerHTML='<div class="em">No hay eventos deportivos pr\u00f3ximos registrados.</div>'; return; }
   c.innerHTML=up.map(function(e){
-    var df=Math.round((new Date(e.date)-new Date(tk))/86400000);
-    var wh=df===0?'Hoy \u2014 alerta inmediata':df===1?'Ma\u00f1ana \u2014 1h antes':df+' d\u00edas \u2014 24h antes';
-    return '<div class="ar"><span class="atime">'+fmtD(e.date)+' '+(e.time||'')+'</span>'
+    var dt=e.time?new Date(e.date+'T'+e.time+':00'):new Date(e.date+'T23:59:00');
+    var now=new Date();
+    var diffMs=dt-now;
+    var diffH=diffMs/3600000;
+    var diffMin=diffMs/60000;
+    var status='';
+    var statusColor='var(--tx2)';
+    if(diffMs<0){
+      status='Finalizado'; statusColor='var(--tx2)';
+    } else if(diffMin<=15){
+      status='\u26a0\ufe0f 15 min — \u00a1alerta enviada!'; statusColor='var(--red)';
+    } else if(diffMin<=60){
+      status='\u23f0 1h antes — alerta enviada'; statusColor='var(--amb-tx)';
+    } else if(diffH<=24){
+      status='\uD83D\uDD14 24h antes — alerta programada'; statusColor='var(--grn-tx)';
+    } else {
+      var d=Math.ceil(diffH/24);
+      status='En '+d+' d\u00eda'+(d>1?'s':''); statusColor='var(--tx1)';
+    }
+    var notifLine='<div style="margin-top:3px;font-size:11px;display:flex;gap:8px;flex-wrap:wrap">'
+      +'<span style="color:#1B3A2D;background:#e6f5ee;padding:1px 6px;border-radius:8px;border:0.5px solid #3DAB7B">\u2709 Email</span>'
+      +'<span style="color:#1B3A2D;background:#d4eaf7;padding:1px 6px;border-radius:8px;border:0.5px solid #2E7D5B">\u1F4AC Teams</span>'
+      +'<span style="color:#1B3A2D;background:#d4f0e0;padding:1px 6px;border-radius:8px;border:0.5px solid #3DAB7B">\u1F4F1 WhatsApp</span>'
+      +'</div>';
+    return '<div class="ar" style="flex-direction:column;align-items:flex-start;padding:10px 0">'
+      +'<div style="display:flex;align-items:center;gap:9px;width:100%;flex-wrap:wrap">'
+      +'<span class="atime">'+fmtD(e.date)+' '+(e.time||'')+'</span>'
       +'<span class="aname">'+e.name+'</span>'
       +'<span class="badge '+cc(e.crit)+'">'+cl(e.crit)+'</span>'
-      +'<span class="awhen">'+wh+'</span></div>';
+      +'<span style="font-size:11px;color:'+statusColor+';margin-left:auto">'+status+'</span>'
+      +'</div>'
+      +notifLine
+      +'</div>';
   }).join('');
 }
 
 // CRUD EVENTOS
+function toggleMarketingDateEnd(){
+  var t=document.getElementById('f-type').value;
+  var row=document.getElementById('f-date-end-row');
+  if(row) row.style.display=(t==='Marketing')?'':'none';
+  if(t!=='Marketing'){ var fe=document.getElementById('f-date-end'); if(fe) fe.value=''; }
+}
 function openNew(){
   EID=null;
   document.getElementById('m-ev-tit').textContent='Registrar evento';
@@ -813,17 +910,27 @@ function openNew(){
   document.getElementById('f-time').value='20:00';
   document.getElementById('f-src').value='Manual';
   document.getElementById('f-turn').value='Diurno';
+  var fed=document.getElementById('f-date-end'); if(fed) fed.value='';
+  toggleMarketingDateEnd();
   openMo('m-ev');
 }
 async function doSave(){
   var name=document.getElementById('f-name').value.trim();
   var date=document.getElementById('f-date').value;
   if(!name||!date){ alert('Nombre y fecha son obligatorios.'); return; }
+  var evtype2=document.getElementById('f-type').value;
+  if(evtype2==='Release' && RES[date] && RES[date].status==='no'){
+    alert('No es posible registrar un Release en esta fecha.\nD\u00eda restringido: '+(RES[date].reason||'Sin motivo'));
+    return;
+  }
   var btn=document.getElementById('f-sbtn');
   btn.textContent='Guardando...'; btn.disabled=true;
+  var ftype=document.getElementById('f-type').value;
+  var fdend=document.getElementById('f-date-end');
+  var dateEnd=(ftype==='Marketing'&&fdend&&fdend.value)?fdend.value:'';
   var ev={
-    id:EID||String(Date.now()), name:name, date:date,
-    type:document.getElementById('f-type').value,
+    id:EID||String(Date.now()), name:name, date:date, dateEnd:dateEnd,
+    type:ftype,
     crit:document.getElementById('f-crit').value,
     time:document.getElementById('f-time').value,
     source:document.getElementById('f-src').value,
@@ -857,6 +964,7 @@ function openDet(id){
     +'<div><div class="dl">Tipo</div><span class="badge '+tc(e.type)+'">'+e.type+'</span></div></div>'
     +'<div class="ds dr"><div><div class="dl">Criticidad</div><span class="badge '+cc(e.crit)+'">'+cl(e.crit)+'</span></div>'
     +'<div><div class="dl">Fuente</div><span class="src">'+(e.source||'Manual')+'</span></div></div>'
+    +(e.dateEnd?'<div class="ds"><div class="dl">Fecha fin campa\u00f1a</div><div class="dv">'+fmtD(e.dateEnd)+'</div></div>':'')
     +(e.extId?'<div class="ds"><div class="dl">Ticket / ID externo</div><div class="dv" style="color:var(--pd-mid)">'+e.extId+'</div></div>':'')
     +(e.notes?'<div class="ds"><div class="dl">Notas</div><div class="dv" style="font-size:12px;color:var(--tx1)">'+e.notes+'</div></div>':'')
     +(iR?'<div class="ib ibw">\u26a0\ufe0f D\u00eda restringido: '+RES[e.date].reason+'</div>':'');
@@ -891,21 +999,47 @@ function doEdit(){
   document.getElementById('f-time').value=e.time||''; document.getElementById('f-src').value=e.source||'Manual';
   document.getElementById('f-ext').value=e.extId||''; document.getElementById('f-resp').value=e.resp||'';
   document.getElementById('f-turn').value=e.turno||'Diurno'; document.getElementById('f-notes').value=e.notes||'';
+  var fed2=document.getElementById('f-date-end'); if(fed2) fed2.value=e.dateEnd||'';
+  toggleMarketingDateEnd();
   openMo('m-ev');
 }
 
 // RESTRICCIONES
-function openRestr(){ document.getElementById('r-date').value=new Date().toISOString().slice(0,10); document.getElementById('r-why').value=''; openMo('m-res'); }
+function openRestr(){
+  document.getElementById('r-date').value=new Date().toISOString().slice(0,10);
+  var re=document.getElementById('r-date-end'); if(re) re.value='';
+  document.getElementById('r-why').value='';
+  openMo('m-res');
+}
+// Genera array de fechas YYYY-MM-DD entre dos fechas inclusive
+function dateRange(from, to){
+  var dates=[], cur=new Date(from+'T00:00:00');
+  var end=new Date((to||from)+'T00:00:00');
+  while(cur<=end){
+    dates.push(cur.toISOString().slice(0,10));
+    cur.setDate(cur.getDate()+1);
+  }
+  return dates;
+}
 async function doRestr(){
-  var d=document.getElementById('r-date').value, s=document.getElementById('r-st').value;
+  var d=document.getElementById('r-date').value;
+  var dend=document.getElementById('r-date-end').value||d;
+  var s=document.getElementById('r-st').value;
   var w=document.getElementById('r-why').value.trim();
-  if(!d){ alert('La fecha es obligatoria.'); return; }
-  if(s==='no') RES[d]={status:'no',reason:w||'Sin motivo'};
-  else delete RES[d];
+  if(!d){ alert('La fecha desde es obligatoria.'); return; }
+  if(dend<d){ alert('La fecha hasta debe ser igual o posterior a la fecha desde.'); return; }
+  var dates=dateRange(d,dend);
+  dates.forEach(function(dk){
+    if(s==='no') RES[dk]={status:'no',reason:w||'Sin motivo'};
+    else delete RES[dk];
+  });
   saveLS(); closeMo('m-res'); render();
+  // Sincronizar cada fecha con Sheets
   try{
-    if(s==='no') await api('saveRestriction',{restriction:{date:d,status:s,reason:w}});
-    else         await api('deleteRestriction',{date:d});
+    for(var i=0;i<dates.length;i++){
+      if(s==='no') await api('saveRestriction',{restriction:{date:dates[i],status:s,reason:w}});
+      else         await api('deleteRestriction',{date:dates[i]});
+    }
   }catch(e){ setSt('fail','Error al guardar restricci\u00f3n'); }
 }
 
@@ -915,6 +1049,126 @@ function closeMo(id){ document.getElementById(id).classList.remove('open'); }
 document.querySelectorAll('.mo').forEach(function(m){
   m.addEventListener('click',function(e){ if(e.target===m) m.classList.remove('open'); });
 });
+
+// NOTIFICACIONES
+var K_NOTIF='_calNotif';
+function saveNotifConfig(){
+  var cfg={
+    email:document.getElementById('notif-email').value.trim(),
+    teams:document.getElementById('notif-teams').value.trim(),
+    wa:document.getElementById('notif-wa').value.trim()
+  };
+  localStorage.setItem(K_NOTIF,JSON.stringify(cfg));
+  var saved=document.getElementById('notif-saved');
+  if(saved){ saved.style.display='inline'; setTimeout(function(){ saved.style.display='none'; },2500); }
+}
+function loadNotifConfig(){
+  try{
+    var cfg=JSON.parse(localStorage.getItem(K_NOTIF)||'{}');
+    var em=document.getElementById('notif-email'); if(em&&cfg.email) em.value=cfg.email;
+    var tm=document.getElementById('notif-teams'); if(tm&&cfg.teams) tm.value=cfg.teams;
+    var wa=document.getElementById('notif-wa');    if(wa&&cfg.wa)    wa.value=cfg.wa;
+  }catch(e){}
+}
+// Verificar alertas deportivas y mostrar notificación en el sistema
+// Registro de alertas ya disparadas para no repetir en el mismo ciclo
+var _sentAlerts={};
+
+function checkSportAlerts(){
+  var now=new Date();
+  var tk=now.toISOString().slice(0,10);
+  var sporting=EVS.filter(function(e){ return e.type==='Deportivo'&&e.date>=tk; });
+  var alertsNow=[];
+  sporting.forEach(function(e){
+    if(!e.date||!e.time) return;
+    var dt=new Date(e.date+'T'+e.time+':00');
+    var diffMin=(dt-now)/60000;
+    var window='';
+    if(diffMin>0 && diffMin<=16)       window='15min';
+    else if(diffMin>56 && diffMin<=62) window='1h';
+    else if(diffMin>1435 && diffMin<=1445) window='24h';
+    if(!window) return;
+    var key=e.id+'_'+window;
+    if(_sentAlerts[key]) return; // ya disparada en este ciclo
+    _sentAlerts[key]=true;
+    alertsNow.push({ev:e, label:window==='15min'?'15 min antes':window==='1h'?'1 hora antes':'24 horas antes', window:window});
+  });
+  if(alertsNow.length){
+    var nb=document.getElementById('nban'), nt=document.getElementById('ntxt');
+    nb.style.display='flex';
+    nt.textContent='\u26BD '+alertsNow.length+' alerta deportiva: '+alertsNow.map(function(a){return a.ev.name+' ('+a.label+')';}).join(', ');
+    alertsNow.forEach(function(a){ dispatchSportAlert(a.ev, a.label); });
+  }
+}
+
+function dispatchSportAlert(ev, label){
+  var cfg={};
+  try{ cfg=JSON.parse(localStorage.getItem(K_NOTIF)||'{}'); }catch(e){}
+  var msg='\u26BD Alerta Calendario PagoDirecto\n'
+    +'Evento: '+ev.name+'\n'
+    +'Fecha: '+fmtD(ev.date)+' '+( ev.time||'')+'\n'
+    +'Criticidad: '+cl(ev.crit)+'\n'
+    +'Aviso: '+label;
+
+  // 1. Notificación del navegador (funciona si el usuario la autorizó)
+  if(window.Notification && Notification.permission==='granted'){
+    new Notification('\u26BD PagoDirecto · '+label, {
+      body: ev.name+' — '+fmtD(ev.date)+' '+(ev.time||''),
+      icon: ''
+    });
+  }
+
+  // 2. WhatsApp: abre wa.me en nueva pestaña con el mensaje
+  if(cfg.wa && cfg.wa.trim()){
+    var waNum=cfg.wa.replace(/[^0-9]/g,'');
+    var waUrl='https://wa.me/'+waNum+'?text='+encodeURIComponent(msg);
+    window.open(waUrl,'_blank','noopener');
+  }
+
+  // 3. Microsoft Teams webhook: POST directo (Teams permite CORS)
+  if(cfg.teams && cfg.teams.trim()){
+    var teamsBody={
+      '@type':'MessageCard',
+      '@context':'https://schema.org/extensions',
+      'themeColor':'1B3A2D',
+      'summary':'Alerta deportiva: '+ev.name,
+      'sections':[{
+        'activityTitle':'\u26BD '+label+' — '+ev.name,
+        'activitySubtitle':'Calendario Operativo · PagoDirecto',
+        'facts':[
+          {'name':'Fecha','value':fmtD(ev.date)+' '+(ev.time||'')},
+          {'name':'Criticidad','value':cl(ev.crit)},
+          {'name':'Aviso','value':label}
+        ]
+      }]
+    };
+    fetch(cfg.teams,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(teamsBody)
+    }).catch(function(){});
+  }
+
+  // 4. Email: abre el cliente de correo del usuario con el mensaje pre-llenado
+  if(cfg.email && cfg.email.trim()){
+    var sub=encodeURIComponent('\u26BD Alerta Deportiva: '+ev.name+' ('+label+')');
+    var body=encodeURIComponent(msg);
+    // Usamos un link temporal para no bloquear la UI
+    var a=document.createElement('a');
+    a.href='mailto:'+cfg.email+'?subject='+sub+'&body='+body;
+    a.style.display='none';
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(function(){ document.body.removeChild(a); },500);
+  }
+}
+
+// Solicitar permiso de notificaciones del navegador al cargar
+function requestNotifPermission(){
+  if(window.Notification && Notification.permission==='default'){
+    Notification.requestPermission();
+  }
+}
 
 // INIT
 NIGHT_MODE=localStorage.getItem(K_MODE)==='1';
@@ -931,7 +1185,10 @@ if(!checkSetup()){
   clearTimeout(_ovTimer); loadLS();
 }
 setInterval(function(){ if(getScriptUrl()&&!LOCAL) loadAll(); },120000);
-
+loadNotifConfig();
+requestNotifPermission();
+setInterval(checkSportAlerts, 60000);
+checkSportAlerts();
 </script>
 </body>
 </html>
