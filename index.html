@@ -302,33 +302,9 @@ body.night .footer-logo img{background:#fff;padding:2px}
         <div style="font-size:11px;color:var(--tx2);margin-bottom:10px">Notificaciones autom&aacute;ticas 24h &middot; 1h &middot; 15 min antes de cada evento deportivo</div>
         <div style="display:flex;gap:7px;flex-wrap:wrap;margin-bottom:14px;align-items:center">
           <span style="font-size:11px;color:var(--tx1);font-weight:600">Canales:</span>
-          <span class="badge bd">&#x2709; Email</span>
-          <span class="badge bm">&#x1F4AC; Teams</span>
-          <span class="badge" style="background:#d4f0e0;color:#1B3A2D;border:0.5px solid #3DAB7B">&#x1F4F1; WhatsApp</span>
+          <span class="badge bd">&#x1F514; Notificaci&oacute;n del navegador</span>
         </div>
-        <div style="background:var(--bg1);border-radius:var(--r1);padding:10px 12px;margin-bottom:12px;border:0.5px solid var(--bd0)">
-          <div style="font-size:11px;font-weight:700;color:var(--pd-mid);margin-bottom:8px;text-transform:uppercase;letter-spacing:.05em">Configurar destinatarios</div>
-          <div class="fr" style="gap:8px;margin-bottom:6px">
-            <div class="fg"><label>Email</label><input id="notif-email" type="email" placeholder="correo@empresa.com" style="font-size:12px;padding:5px 8px"></div>
-            <div class="fg"><label>Teams Webhook URL</label><input id="notif-teams" type="url" placeholder="https://outlook.office.com/webhook/..." style="font-size:12px;padding:5px 8px"></div>
-          </div>
-          <div class="fg"><label>WhatsApp (n&uacute;mero con c&oacute;digo pa&iacute;s)</label><input id="notif-wa" type="tel" placeholder="+58414..." style="font-size:12px;padding:5px 8px;max-width:220px"></div>
-          <div style="margin-top:8px;display:flex;align-items:center;gap:10px">
-            <button class="btn btns btnp" onclick="saveNotifConfig()">Guardar configuraci&oacute;n</button>
-            <span id="notif-saved" style="font-size:11px;color:var(--grn-tx);display:none">&#x2713; Guardado</span>
-          </div>
-          <div style="margin-top:10px;padding:8px 10px;background:var(--amb-bg);border-radius:var(--r1);border:0.5px solid var(--amb-bd)">
-            <div style="font-size:11px;font-weight:700;color:var(--amb-tx);margin-bottom:4px">&#x2139; C&oacute;mo funcionan las notificaciones</div>
-            <div style="font-size:11px;color:var(--amb-tx);line-height:1.6">
-              &bull; <strong>Navegador</strong>: aparece una notificaci&oacute;n push si autorizas el permiso (se solicita al cargar)<br>
-              &bull; <strong>WhatsApp</strong>: abre wa.me con el mensaje listo &mdash; debes enviar t&uacute; mismo<br>
-              &bull; <strong>Teams</strong>: env&iacute;a autom&aacute;ticamente al webhook configurado<br>
-              &bull; <strong>Email</strong>: abre tu cliente de correo (Outlook/Gmail) con el mensaje pre-llenado<br>
-              &bull; El sistema debe estar <strong>abierto en el navegador</strong> para detectar las ventanas de tiempo
-            </div>
-          </div
-          </div>
-        </div>
+
         <div id="ac"></div>
       </div>
     </div>
@@ -1051,25 +1027,7 @@ document.querySelectorAll('.mo').forEach(function(m){
 });
 
 // NOTIFICACIONES
-var K_NOTIF='_calNotif';
-function saveNotifConfig(){
-  var cfg={
-    email:document.getElementById('notif-email').value.trim(),
-    teams:document.getElementById('notif-teams').value.trim(),
-    wa:document.getElementById('notif-wa').value.trim()
-  };
-  localStorage.setItem(K_NOTIF,JSON.stringify(cfg));
-  var saved=document.getElementById('notif-saved');
-  if(saved){ saved.style.display='inline'; setTimeout(function(){ saved.style.display='none'; },2500); }
-}
-function loadNotifConfig(){
-  try{
-    var cfg=JSON.parse(localStorage.getItem(K_NOTIF)||'{}');
-    var em=document.getElementById('notif-email'); if(em&&cfg.email) em.value=cfg.email;
-    var tm=document.getElementById('notif-teams'); if(tm&&cfg.teams) tm.value=cfg.teams;
-    var wa=document.getElementById('notif-wa');    if(wa&&cfg.wa)    wa.value=cfg.wa;
-  }catch(e){}
-}
+// Notificaciones deportivas — solo pop-up del navegador
 // Verificar alertas deportivas y mostrar notificación en el sistema
 // Registro de alertas ya disparadas para no repetir en el mismo ciclo
 var _sentAlerts={};
@@ -1102,73 +1060,25 @@ function checkSportAlerts(){
 }
 
 function dispatchSportAlert(ev, label){
-  var cfg={};
-  try{ cfg=JSON.parse(localStorage.getItem(K_NOTIF)||'{}'); }catch(e){}
-  var msg='\u26BD Alerta Calendario PagoDirecto\n'
-    +'Evento: '+ev.name+'\n'
-    +'Fecha: '+fmtD(ev.date)+' '+( ev.time||'')+'\n'
-    +'Criticidad: '+cl(ev.crit)+'\n'
-    +'Aviso: '+label;
-
-  // 1. Notificación del navegador (funciona si el usuario la autorizó)
+  // Notificación push del navegador
   if(window.Notification && Notification.permission==='granted'){
-    new Notification('\u26BD PagoDirecto · '+label, {
-      body: ev.name+' — '+fmtD(ev.date)+' '+(ev.time||''),
+    new Notification('\u26BD PagoDirecto \u00b7 '+label, {
+      body: ev.name+' \u2014 '+fmtD(ev.date)+' '+(ev.time||''),
       icon: ''
     });
-  }
-
-  // 2. WhatsApp: abre wa.me en nueva pestaña con el mensaje
-  if(cfg.wa && cfg.wa.trim()){
-    var waNum=cfg.wa.replace(/[^0-9]/g,'');
-    var waUrl='https://wa.me/'+waNum+'?text='+encodeURIComponent(msg);
-    window.open(waUrl,'_blank','noopener');
-  }
-
-  // 3. Microsoft Teams webhook: POST directo (Teams permite CORS)
-  if(cfg.teams && cfg.teams.trim()){
-    var teamsBody={
-      '@type':'MessageCard',
-      '@context':'https://schema.org/extensions',
-      'themeColor':'1B3A2D',
-      'summary':'Alerta deportiva: '+ev.name,
-      'sections':[{
-        'activityTitle':'\u26BD '+label+' — '+ev.name,
-        'activitySubtitle':'Calendario Operativo · PagoDirecto',
-        'facts':[
-          {'name':'Fecha','value':fmtD(ev.date)+' '+(ev.time||'')},
-          {'name':'Criticidad','value':cl(ev.crit)},
-          {'name':'Aviso','value':label}
-        ]
-      }]
-    };
-    fetch(cfg.teams,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(teamsBody)
-    }).catch(function(){});
-  }
-
-  // 4. Email: abre el cliente de correo del usuario con el mensaje pre-llenado
-  if(cfg.email && cfg.email.trim()){
-    var sub=encodeURIComponent('\u26BD Alerta Deportiva: '+ev.name+' ('+label+')');
-    var body=encodeURIComponent(msg);
-    // Usamos un link temporal para no bloquear la UI
-    var a=document.createElement('a');
-    a.href='mailto:'+cfg.email+'?subject='+sub+'&body='+body;
-    a.style.display='none';
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(function(){ document.body.removeChild(a); },500);
+  } else if(window.Notification && Notification.permission==='default'){
+    Notification.requestPermission().then(function(p){
+      if(p==='granted'){
+        new Notification('\u26BD PagoDirecto \u00b7 '+label, {
+          body: ev.name+' \u2014 '+fmtD(ev.date)+' '+(ev.time||''),
+          icon: ''
+        });
+      }
+    });
   }
 }
 
-// Solicitar permiso de notificaciones del navegador al cargar
-function requestNotifPermission(){
-  if(window.Notification && Notification.permission==='default'){
-    Notification.requestPermission();
-  }
-}
+
 
 // INIT
 NIGHT_MODE=localStorage.getItem(K_MODE)==='1';
@@ -1185,8 +1095,6 @@ if(!checkSetup()){
   clearTimeout(_ovTimer); loadLS();
 }
 setInterval(function(){ if(getScriptUrl()&&!LOCAL) loadAll(); },120000);
-loadNotifConfig();
-requestNotifPermission();
 setInterval(checkSportAlerts, 60000);
 checkSportAlerts();
 </script>
