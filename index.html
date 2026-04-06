@@ -590,7 +590,7 @@ async function api(action,params){
   if(!base) throw new Error('Sin URL');
   setSt('busy','Sincronizando...');
   var qs=new URLSearchParams({action:action,payload:JSON.stringify(params)});
-  var res=await fetch(base+'?'+qs.toString(),{method:'GET'});
+  var res=await fetch(base+'?'+qs.toString()+'&_t='+Date.now(),{method:'GET',cache:'no-store'});
   if(!res.ok) throw new Error('HTTP '+res.status);
   var json=await res.json();
   if(!json.ok) throw new Error(json.error||'Error servidor');
@@ -637,7 +637,20 @@ async function loadAll(){
     (d.restrictions||[]).forEach(function(r){ RES[r.date]={status:r.status,reason:r.reason}; });
     saveLS();
     try{ render(); }catch(re){ console.error('render error:',re); }
-  }catch(e){ setSt('fail','Sin conexi\u00f3n \u2014 usando cach\u00e9'); loadLS(); }
+  }catch(e){
+    setSt('fail','Sin conexi\u00f3n \u2014 reintentando...');
+    // Reintento automático tras 8 segundos
+    setTimeout(function(){
+      if(document.getElementById('sync').className==='fail'){
+        api('getAll',{}).then(function(d){
+          EVS=(d.events||[]).map(normalizeEvent);
+          RES={};
+          (d.restrictions||[]).forEach(function(r){ RES[r.date]={status:r.status,reason:r.reason}; });
+          saveLS(); render();
+        }).catch(function(){ setSt('fail','Sin conexi\u00f3n \u2014 usando cach\u00e9'); loadLS(); });
+      }
+    },8000);
+  }
   finally{ hideOv(); }
 }
 async function doSync(){ await loadAll(); }
@@ -662,7 +675,24 @@ function loadLS(){
 
 // UI HELPERS
 function setSt(st,lbl){ var el=document.getElementById('sync'); el.className=st; el.querySelector('.sdot').classList.toggle('pulse',st==='busy'); document.getElementById('slbl').textContent=lbl; }
-function updCI(){ var ci=document.getElementById('ci'); if(ci) ci.innerHTML=LSYNC?'&Uacute;ltima sync:<br><strong>'+LSYNC.toLocaleString()+'</strong>':'No sincronizado'; }
+function updCI(){
+  var ci=document.getElementById('ci');
+  if(ci) ci.innerHTML=LSYNC?'&Uacute;ltima sync:<br><strong>'+LSYNC.toLocaleString()+'</strong>':'No sincronizado';
+  if(LSYNC){
+    var mins=Math.round((new Date()-LSYNC)/60000);
+    var syncEl=document.getElementById('sync');
+    if(syncEl && syncEl.className!=='busy' && mins>30){
+      setSt('fail','Sin sync hace '+mins+'min');
+      syncEl.style.cursor='pointer';
+      syncEl.title='Clic para sincronizar ahora';
+      syncEl.onclick=function(){ loadAll(); };
+    } else if(syncEl && mins<=30){
+      syncEl.style.cursor='default';
+      syncEl.title='';
+      syncEl.onclick=null;
+    }
+  }
+}
 function hideOv(){ document.getElementById('ov').classList.add('gone'); }
 function fmtD(s){ if(!s)return''; var p=s.split('-'); return p[2]+'/'+p[1]+'/'+p[0]; }
 function cc(c){ return c==='alto'?'ca':c==='medio'?'cm':'cb'; }
@@ -1094,7 +1124,8 @@ if(!checkSetup()){
 } else {
   clearTimeout(_ovTimer); loadLS();
 }
-setInterval(function(){ if(getScriptUrl()&&!LOCAL) loadAll(); },120000);
+setInterval(function(){ if(getScriptUrl()&&!LOCAL) loadAll(); },90000);
+setInterval(function(){ updCI(); },60000); // actualizar indicador de tiempo cada minuto
 setInterval(checkSportAlerts, 60000);
 checkSportAlerts();
 </script>
