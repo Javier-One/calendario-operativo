@@ -4,9 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Calendario Operativo · PagoDirecto</title>
-
-<link rel="icon" type="image/png" href="https://raw.githubusercontent.com/Javier-One/calendario-operativo/main/pagodirecto_logo.jpg?v=10">
-  
 <style>
 
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
@@ -97,7 +94,7 @@ body.night .navb{color:var(--pd-teal)} .navb:hover{background:var(--pd-pale)}
 body.night .mlbl{color:var(--pd-teal)}
 .mp-wm{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:0;overflow:hidden}
 .mp-wm img{width:300px;height:auto;opacity:.1;filter:none}
-body.night .mp-wm img{opacity:.13;filter:brightness(1.4) saturate(0.8)}
+body.night .mp-wm img{opacity:.18;filter:brightness(1.9) saturate(1.15) contrast(1.25) drop-shadow(0 0 8px rgba(61,171,123,0.18))}
 #cal-dh,#cal-cd,.lv,.av{position:relative;z-index:1}
 .cg{display:grid;grid-template-columns:repeat(7,1fr)}
 .dh{padding:7px 5px;text-align:center;font-size:10px;font-weight:700;color:var(--pd-dark);border-bottom:1px solid var(--pd-pale);text-transform:uppercase;letter-spacing:.04em;background:var(--pd-pale)}
@@ -702,7 +699,36 @@ function cc(c){ return c==='alto'?'ca':c==='medio'?'cm':'cb'; }
 function cl(c){ return c==='alto'?'\uD83D\uDD34 Alto':c==='medio'?'\uD83D\uDF01 Medio':'\uD83D\uDF02 Bajo'; }
 function tc(t){ return t==='Deportivo'?'bd':t==='Marketing'?'bm':'bp'; }
 function ini(s){ return s.trim().split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(); }
-function gf(){ return EVS.filter(function(e){ return FIL[e.type]!==false; }); }
+// Expande eventos de Marketing con rango de fechas en días individuales
+// para que aparezcan en cada celda del calendario.
+// Los demás tipos se devuelven sin cambios.
+function getExpandedEvents(){
+  var result=[];
+  EVS.forEach(function(ev){
+    if(ev.type==='Marketing' && ev.dateEnd && ev.dateEnd>ev.date){
+      // Generar un evento virtual por cada día del rango
+      var cur=new Date(ev.date+'T12:00:00');
+      var end=new Date(ev.dateEnd+'T12:00:00');
+      var idx=0;
+      while(cur<=end){
+        var dk=cur.toISOString().slice(0,10);
+        result.push(Object.assign({},ev,{
+          date: dk,
+          _expanded: true,      // marca visual: no lanzar confeti
+          _rangeId: ev.id,      // id real para abrir el detalle
+          id: ev.id+'_'+dk      // id único por día para el renderizado
+        }));
+        cur.setDate(cur.getDate()+1);
+        idx++;
+        if(idx>365) break;      // protección: máximo 1 año
+      }
+    } else {
+      result.push(ev);
+    }
+  });
+  return result;
+}
+function gf(){ return getExpandedEvents().filter(function(e){ return FIL[e.type]!==false; }); }
 
 // CONFIG URL
 function checkSetup(){
@@ -794,7 +820,11 @@ function renderCal(){
     nb.style.display='flex';
   } else { nb.style.display='none'; }
   var newIds=[];
-  me.forEach(function(e){ if(!_renderedIds[e.id]){ newIds.push(e.id); _renderedIds[e.id]=true; } });
+  me.forEach(function(e){
+    // Solo confeti en el primer día del evento (no en días expandidos del rango)
+    if(!_renderedIds[e.id] && !e._expanded){ newIds.push(e.id); }
+    _renderedIds[e.id]=true;
+  });
   var html='';
   for(var i=0;i<fd2;i++) html+='<div class="dc om"><div class="dn">'+(dip-fd2+1+i)+'</div></div>';
   for(var d=1;d<=dim;d++){
@@ -829,13 +859,27 @@ function dayClick(dk){ if(ROLE==='int'){ document.getElementById('f-date').value
 
 // LISTA
 function renderLst(){
-  var fe=gf().sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
+  // En lista, mostrar eventos únicos (no duplicar días expandidos de Marketing)
+  var seen={};
+  var fe=getExpandedEvents().filter(function(e){
+    if(FIL[e.type]===false) return false;
+    var realId=e._rangeId||e.id;
+    if(seen[realId]) return false;
+    seen[realId]=true;
+    return true;
+  }).sort(function(a,b){ return (a.date||'').localeCompare(b.date||''); });
   var c=document.getElementById('lc');
   if(!fe.length){ c.innerHTML='<div class="em">Sin eventos con los filtros actuales.</div>'; return; }
   c.innerHTML=fe.map(function(e){
     var iR=e.date&&RES[e.date]&&RES[e.date].status==='no';
-    return '<div class="li2" data-eid="'+e.id+'" onclick="openDet(this.dataset.eid)">'
-      +'<div class="ldt">'+fmtD(e.date)+'<div class="ltm">'+(e.time||'')+'</div></div>'
+    // Para Marketing con rango, mostrar "01/04 → 08/04" en lugar de solo la fecha inicio
+    var dateLabel=fmtD(e.date);
+    if(e.type==='Marketing'&&e.dateEnd&&e.dateEnd>e.date){
+      dateLabel=fmtD(e.date)+' \u2192 '+fmtD(e.dateEnd);
+    }
+    var realId=e._rangeId||e.id;
+    return '<div class="li2" data-eid="'+realId+'" onclick="openDet(this.dataset.eid)">'
+      +'<div class="ldt" style="min-width:100px">'+dateLabel+'<div class="ltm">'+(e.time||'')+'</div></div>'
       +'<div style="flex:1"><div class="ln">'+e.name+(iR?' <span style="font-size:10px;color:var(--red)">\u26a0 restringido</span>':'')+'</div>'
       +'<div class="lme"><span class="badge '+tc(e.type)+'">'+e.type+'</span>'
       +'<span class="badge '+cc(e.crit)+'">'+cl(e.crit)+'</span>'
@@ -965,7 +1009,14 @@ async function doDel(){
 
 // DETALLE
 function openDet(id){
-  var e=EVS.find(function(ev){ return String(ev.id)===String(id); }); if(!e) return;
+  // Buscar por id directo o por _rangeId (eventos Marketing expandidos)
+  var e=EVS.find(function(ev){ return String(ev.id)===String(id); });
+  if(!e){
+    // id puede ser 'originalId_YYYY-MM-DD' para días expandidos de Marketing
+    var baseId=String(id).split('_').slice(0,-1).join('_');
+    e=EVS.find(function(ev){ return String(ev.id)===baseId; });
+  }
+  if(!e) return;
   DID=id; document.getElementById('d-tit').textContent=e.name;
   var iR=e.date&&RES[e.date]&&RES[e.date].status==='no';
   document.getElementById('ti').innerHTML=
@@ -973,7 +1024,9 @@ function openDet(id){
     +'<div><div class="dl">Tipo</div><span class="badge '+tc(e.type)+'">'+e.type+'</span></div></div>'
     +'<div class="ds dr"><div><div class="dl">Criticidad</div><span class="badge '+cc(e.crit)+'">'+cl(e.crit)+'</span></div>'
     +'<div><div class="dl">Fuente</div><span class="src">'+(e.source||'Manual')+'</span></div></div>'
-    +(e.dateEnd?'<div class="ds"><div class="dl">Fecha fin campa\u00f1a</div><div class="dv">'+fmtD(e.dateEnd)+'</div></div>':'')
+    +(e.dateEnd&&e.dateEnd>e.date
+        ?'<div class="ds"><div class="dl">Campa\u00f1a</div><div class="dv">'+fmtD(e.date)+' \u2192 '+fmtD(e.dateEnd)+'</div></div>'
+        :'')
     +(e.extId?'<div class="ds"><div class="dl">Ticket / ID externo</div><div class="dv" style="color:var(--pd-mid)">'+e.extId+'</div></div>':'')
     +(e.notes?'<div class="ds"><div class="dl">Notas</div><div class="dv" style="font-size:12px;color:var(--tx1)">'+e.notes+'</div></div>':'')
     +(iR?'<div class="ib ibw">\u26a0\ufe0f D\u00eda restringido: '+RES[e.date].reason+'</div>':'');
