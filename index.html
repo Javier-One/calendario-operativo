@@ -633,6 +633,7 @@ async function loadAll(){
   try{
     var d=await api('getAll',{});
     EVS=(d.events||[]).map(normalizeEvent);
+    _renderedIds={}; // limpiar tracker al recargar datos frescos
     RES={};
     (d.restrictions||[]).forEach(function(r){ RES[r.date]={status:r.status,reason:r.reason}; });
     saveLS();
@@ -707,11 +708,16 @@ function getExpandedEvents(){
   EVS.forEach(function(ev){
     if(ev.type==='Marketing' && ev.dateEnd && ev.dateEnd>ev.date){
       // Generar un evento virtual por cada día del rango
-      var cur=new Date(ev.date+'T12:00:00');
-      var end=new Date(ev.dateEnd+'T12:00:00');
+      // Parseo manual para evitar desfase de zona horaria del navegador
+      function _parseLocalDate(s){
+        var p=s.split('-');
+        return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
+      }
+      var cur=_parseLocalDate(ev.date);
+      var end=_parseLocalDate(ev.dateEnd);
       var idx=0;
       while(cur<=end){
-        var dk=cur.toISOString().slice(0,10);
+        var dk=cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
         result.push(Object.assign({},ev,{
           date: dk,
           _expanded: true,      // marca visual: no lanzar confeti
@@ -720,7 +726,7 @@ function getExpandedEvents(){
         }));
         cur.setDate(cur.getDate()+1);
         idx++;
-        if(idx>365) break;      // protección: máximo 1 año
+        if(idx>366) break;      // protección: máximo 1 año + 1 día bisiesto
       }
     } else {
       result.push(ev);
@@ -821,9 +827,12 @@ function renderCal(){
   } else { nb.style.display='none'; }
   var newIds=[];
   me.forEach(function(e){
-    // Solo confeti en el primer día del evento (no en días expandidos del rango)
-    if(!_renderedIds[e.id] && !e._expanded){ newIds.push(e.id); }
-    _renderedIds[e.id]=true;
+    // Usar siempre el ID real (no el expandido) para trackear
+    var realId = e._rangeId || e.id;
+    if(!_renderedIds[realId] && !e._expanded){
+      newIds.push(e.id); // id expandido para encontrar el pill con data-evid
+      _renderedIds[realId]=true;
+    }
   });
   var html='';
   for(var i=0;i<fd2;i++) html+='<div class="dc om"><div class="dn">'+(dip-fd2+1+i)+'</div></div>';
