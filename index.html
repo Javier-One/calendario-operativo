@@ -710,7 +710,10 @@ function ini(s){ return s.trim().split(' ').map(function(w){return w[0];}).join(
 function getExpandedEvents(){
   var result=[];
   EVS.forEach(function(ev){
-    if(ev.type==='Marketing' && ev.dateEnd && ev.dateEnd>ev.date){
+    // Normalizar dateEnd por si viene con espacios o formato inesperado de Sheets
+    var evDateEnd = ev.dateEnd ? String(ev.dateEnd).trim().slice(0,10) : '';
+    if(ev.type==='Marketing' && evDateEnd && evDateEnd.length===10 && evDateEnd>=ev.date){
+      ev = Object.assign({}, ev, {dateEnd: evDateEnd}); // usar versión limpia
       // Generar un evento virtual por cada día del rango
       // Parseo manual para evitar desfase de zona horaria del navegador
       function _parseLocalDate(s){
@@ -718,7 +721,7 @@ function getExpandedEvents(){
         return new Date(parseInt(p[0]),parseInt(p[1])-1,parseInt(p[2]));
       }
       var cur=_parseLocalDate(ev.date);
-      var end=_parseLocalDate(ev.dateEnd);
+      var end=_parseLocalDate(evDateEnd);
       var idx=0;
       while(cur<=end){
         var dk=cur.getFullYear()+'-'+String(cur.getMonth()+1).padStart(2,'0')+'-'+String(cur.getDate()).padStart(2,'0');
@@ -887,7 +890,7 @@ function renderLst(){
     var iR=e.date&&RES[e.date]&&RES[e.date].status==='no';
     // Para Marketing con rango, mostrar "01/04 → 08/04" en lugar de solo la fecha inicio
     var dateLabel=fmtD(e.date);
-    if(e.type==='Marketing'&&e.dateEnd&&e.dateEnd>e.date){
+    if(e.type==='Marketing'&&e.dateEnd&&e.dateEnd.length===10&&e.dateEnd>=e.date){
       dateLabel=fmtD(e.date)+' \u2192 '+fmtD(e.dateEnd);
     }
     var realId=e._rangeId||e.id;
