@@ -103,7 +103,7 @@ body.night .mp-wm img{opacity:.18;filter:brightness(1.9) saturate(1.15) contrast
 .cg{display:grid;grid-template-columns:repeat(7,minmax(0,1fr))}
 .dh{padding:7px 5px;text-align:center;font-size:10px;font-weight:700;color:var(--pd-dark);border-bottom:1px solid var(--pd-pale);text-transform:uppercase;letter-spacing:.04em;background:var(--pd-pale);min-width:0;overflow:hidden}
 body.night .dh{background:var(--bg1);color:var(--pd-teal)}
-.dc{min-height:88px;padding:5px;border-right:0.5px solid var(--bd0);border-bottom:0.5px solid var(--bd0);cursor:pointer;transition:background .1s;position:relative;min-width:0;overflow:hidden;box-sizing:border-box}
+.dc{min-height:88px;padding:5px;border-right:0.5px solid var(--bd0);border-bottom:0.5px solid var(--bd0);cursor:pointer;transition:background .1s;position:relative;min-width:0;overflow:visible;box-sizing:border-box}
 .dc:nth-child(7n){border-right:none} .dc:hover{background:var(--pd-pale)}
 body.night .dc:hover{background:var(--bg1)}
 .dc.today{background:var(--pd-pale);border-left:3px solid var(--pd-teal)}
@@ -112,6 +112,12 @@ body.night .dc:hover{background:var(--bg1)}
 .dn{font-size:12px;font-weight:600;margin-bottom:3px}
 .ep{font-size:10px;padding:2px 5px;border-radius:3px;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;cursor:pointer;font-weight:500;line-height:1.4;display:block;width:100%;box-sizing:border-box;max-width:100%}
 .ml2{font-size:10px;color:var(--tx2)}
+.pills-scroll{max-height:72px;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:var(--pd-teal) transparent;border-radius:3px}
+.pills-scroll::-webkit-scrollbar{width:3px}
+.pills-scroll::-webkit-scrollbar-track{background:transparent}
+.pills-scroll::-webkit-scrollbar-thumb{background:var(--pd-teal);border-radius:3px}
+.pills-scroll.expanded{max-height:none;overflow-y:visible}
+.dc-more{font-size:9px;color:var(--tx2);padding:1px 3px;text-align:right;cursor:default}
 .ca{background:var(--red-bg);color:var(--red-tx)} .cm{background:var(--amb-bg);color:var(--amb-tx)} .cb{background:var(--grn-bg);color:var(--grn-tx)}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
 .bd{background:var(--blu-bg);color:var(--blu-tx);border:0.5px solid var(--pd-teal)}
@@ -848,11 +854,17 @@ function renderCal(){
     var iT=dk===tk, iR=RES[dk]&&RES[dk].status==='no';
     var de=fe.filter(function(e){ return (e.date||'').slice(0,10)===dk; });
     var sh=ROLE==='ext'?de.filter(function(e){ return e.crit!=='bajo'; }):de;
-    var maxPills=sh.length>=3?2:3;
-    var pills=sh.slice(0,maxPills).map(function(e){
+    // Generar TODOS los pills — se muestran en contenedor scrollable
+    var allPills=sh.map(function(e){
       return '<div class="ep '+cc(e.crit)+'" onclick="event.stopPropagation();openDet(this.dataset.evid)" title="'+e.name+'" data-evid="'+e.id+'">'+e.name+'</div>';
     }).join('');
-    if(sh.length>maxPills) pills+='<div class="ml2">+'+(sh.length-maxPills)+' m\u00e1s</div>';
+    // Si hay más de 2 eventos, envolver en contenedor scrollable
+    var pills;
+    if(sh.length>2){
+      pills='<div class="pills-scroll" onclick="event.stopPropagation()" title="Scroll para ver todos los eventos">'+allPills+'</div>';
+    } else {
+      pills=allPills;
+    }
     html+='<div class="dc'+(iT?' today':'')+(iR?' restr':'')+'" data-dk="'+dk+'" onclick="dayClick(this.dataset.dk)"><div class="dn">'+d+'</div>'+(iR?'<span class="rx">✕</span>':'')+pills+'</div>';
   }
   var rem=(7-((fd2+dim)%7))%7;
