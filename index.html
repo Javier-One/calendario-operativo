@@ -23,7 +23,11 @@
   --blu:#1B3A2D;--blu-bg:#e6f5ee;--blu-tx:#1B3A2D;
   --tel:#2E7D5B;--tel-bg:#d4ede0;--tel-tx:#1B3A2D;
   --gry-bg:#f0f4f2;--gry-tx:#2d4a3a;
-  --ff:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif
+  --ff:-apple-system,BlinkMacSystemFont,'Segoe UI',Helvetica,sans-serif;
+  /* Colores por tipo de evento */
+  --dep-bg:#dbeafe;--dep-tx:#1e3a8a;--dep-bd:#93c5fd;   /* Deportivo: azul */
+  --mkt-bg:#fef3c7;--mkt-tx:#92400e;--mkt-bd:#fcd34d;   /* Marketing: ámbar */
+  --rel-bg:#f0fdf4;--rel-tx:#14532d;--rel-bd:#86efac;   /* Release: verde */
 }
 body.night{
   --bg0:#0a1a11;--bg1:#0f2218;--bg2:#071209;
@@ -36,6 +40,9 @@ body.night{
   --grn-bg:#0a1f14;--grn-tx:#7ddead;
   --red-bg:#1a0808;--red-tx:#f08080;
   --amb-bg:#1a1000;--amb-tx:#e0b060;
+  --dep-bg:#1e3a5f;--dep-tx:#93c5fd;--dep-bd:#3b82f6;
+  --mkt-bg:#3b2500;--mkt-tx:#fcd34d;--mkt-bd:#d97706;
+  --rel-bg:#052e16;--rel-tx:#86efac;--rel-bd:#22c55e;
 }
 body{font-family:var(--ff);background:var(--bg2);color:var(--tx0);font-size:14px;min-height:100vh;transition:background .4s,color .4s;overflow-x:hidden}
 #ov{position:fixed;inset:0;background:var(--bg2);z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;transition:opacity .35s}
@@ -119,6 +126,9 @@ body.night .dc:hover{background:var(--bg1)}
 .pills-scroll.expanded{max-height:none;overflow-y:visible}
 .dc-more{font-size:9px;color:var(--tx2);padding:1px 3px;text-align:right;cursor:default}
 .ca{background:var(--red-bg);color:var(--red-tx)} .cm{background:var(--amb-bg);color:var(--amb-tx)} .cb{background:var(--grn-bg);color:var(--grn-tx)}
+.ct-dep{background:var(--dep-bg);color:var(--dep-tx);border-left:2px solid var(--dep-bd)}
+.ct-mkt{background:var(--mkt-bg);color:var(--mkt-tx);border-left:2px solid var(--mkt-bd)}
+.ct-rel{background:var(--rel-bg);color:var(--rel-tx);border-left:2px solid var(--rel-bd)}
 .badge{display:inline-block;font-size:11px;padding:2px 8px;border-radius:10px;font-weight:500}
 .bd{background:var(--blu-bg);color:var(--blu-tx);border:0.5px solid var(--pd-teal)}
 .bm{background:var(--tel-bg);color:var(--tel-tx)} .bp{background:var(--gry-bg);color:var(--gry-tx)}
@@ -431,6 +441,16 @@ body.night .footer-logo img{background:#fff;padding:2px}
 
 <script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 
+// Devuelve 'YYYY-MM-DD' del día actual en hora de Lima (UTC-5)
+// Evita el bug donde a las 8pm Lima el calendario muestra el día siguiente
+function todayLima(){
+  var now=new Date();
+  // Offset Lima = UTC-5 = -300 minutos
+  var limaMs=now.getTime()+(now.getTimezoneOffset()*60000)+(-5*60*60*1000);
+  var d=new Date(limaMs);
+  return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
+}
+
 var MOS=['Enero','Febrero','Marzo','Abril','Mayo','Junio','Julio','Agosto','Septiembre','Octubre','Noviembre','Diciembre'];
 var DYS=['Dom','Lun','Mar','Mi\u00e9','Jue','Vie','S\u00e1b'];
 var K_URL='_calUrl', K_EV='_calEv', K_RE='_calRe', K_SY='_calSy', K_MODE='_calMode';
@@ -709,6 +729,7 @@ function fmtD(s){ if(!s)return''; var p=s.split('-'); return p[2]+'/'+p[1]+'/'+p
 function cc(c){ return c==='alto'?'ca':c==='medio'?'cm':'cb'; }
 function cl(c){ return c==='alto'?'\uD83D\uDD34 Alto':c==='medio'?'\uD83D\uDF01 Medio':'\uD83D\uDF02 Bajo'; }
 function tc(t){ return t==='Deportivo'?'bd':t==='Marketing'?'bm':'bp'; }
+function pc(t){ return t==='Deportivo'?'ct-dep':t==='Marketing'?'ct-mkt':'ct-rel'; }
 function ini(s){ return s.trim().split(' ').map(function(w){return w[0];}).join('').slice(0,2).toUpperCase(); }
 // Expande eventos de Marketing con rango de fechas en días individuales
 // para que aparezcan en cada celda del calendario.
@@ -810,7 +831,7 @@ function renderCal(){
   var fd2=new Date(CY,CM,1).getDay();
   var dim=new Date(CY,CM+1,0).getDate();
   var dip=new Date(CY,CM,0).getDate();
-  var fe=gf(), tk=new Date().toISOString().slice(0,10);
+  var fe=gf(), tk=todayLima();
   var pfx=CY+'-'+String(CM+1).padStart(2,'0');
   document.getElementById('cal-dh').innerHTML=DYS.map(function(d){ return '<div class="dh">'+d+'</div>'; }).join('');
   var me=fe.filter(function(e){ return e.date&&e.date.startsWith(pfx); });
@@ -856,7 +877,7 @@ function renderCal(){
     var sh=ROLE==='ext'?de.filter(function(e){ return e.crit!=='bajo'; }):de;
     // Generar TODOS los pills — se muestran en contenedor scrollable
     var allPills=sh.map(function(e){
-      return '<div class="ep '+cc(e.crit)+'" onclick="event.stopPropagation();openDet(this.dataset.evid)" title="'+e.name+'" data-evid="'+e.id+'">'+e.name+'</div>';
+      return '<div class="ep '+pc(e.type)+'" onclick="event.stopPropagation();openDet(this.dataset.evid)" title="'+e.name+'" data-evid="'+e.id+'">'+e.name+'</div>';
     }).join('');
     // Si hay más de 2 eventos, envolver en contenedor scrollable
     var pills;
@@ -933,7 +954,7 @@ function getNotifWindows(e){
   return windows;
 }
 function renderAlt(){
-  var tk=new Date().toISOString().slice(0,10);
+  var tk=todayLima();
   // SOLO eventos deportivos futuros
   var up=EVS.filter(function(e){ return e.type==='Deportivo'&&e.date>=tk; })
     .sort(function(a,b){ return a.date.localeCompare(b.date); });
@@ -1097,7 +1118,7 @@ function doEdit(){
 
 // RESTRICCIONES
 function openRestr(){
-  document.getElementById('r-date').value=new Date().toISOString().slice(0,10);
+  document.getElementById('r-date').value=todayLima();
   var re=document.getElementById('r-date-end'); if(re) re.value='';
   document.getElementById('r-why').value='';
   openMo('m-res');
